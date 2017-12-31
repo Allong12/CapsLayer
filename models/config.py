@@ -32,7 +32,7 @@ flags.DEFINE_float('epsilon', 1e-9, 'void NAN')
 ############################
 #   environment setting    #
 ############################
-flags.DEFINE_string('dataset', 'mnist', 'The name of dataset [smallNORB, mnist, fashion-mnist]')
+flags.DEFINE_string('dataset', 'celebgender', 'The name of dataset [smallNORB, mnist, fashion-mnist]')
 flags.DEFINE_boolean('is_training', True, 'train or predict phase')
 flags.DEFINE_integer('num_threads', 8, 'number of threads of enqueueing exampls')
 results = os.path.join('models', 'results')
@@ -52,4 +52,4 @@ flags.DEFINE_integer('thread_per_gpu', 8, 'Number of preprocessing threads per t
 cfg = tf.app.flags.FLAGS
 
 # Uncomment this line to run in debug mode
-# tf.logging.set_verbosity(tf.logging.INFO)
+tf.logging.set_verbosity(tf.logging.INFO)

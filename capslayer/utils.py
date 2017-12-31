@@ -95,6 +95,49 @@ def load_fashion_mnist(batch_size, is_training=True):
         return teX / 255., teY, num_te_batch
 
 
+def load_celebgender(batch_size, is_training=True):
+    import pickle
+    from PIL import Image
+    path = os.path.join('models', 'data', 'celeb')
+    ALL_IMGS = np.load((os.path.join(path, "all_images.npz")))
+    IMAGE_SIZE = 50
+    def load_celebimg(hsh):
+        
+        imgcontent = Image.open(ALL_IMGS[hsh].all())
+        imgcontent = imgcontent.resize((IMAGE_SIZE,IMAGE_SIZE))
+        img = np.fromstring(imgcontent.tobytes(), dtype=np.uint8)
+        img = img.reshape((IMAGE_SIZE*IMAGE_SIZE*3))
+        img = img.astype('float32')/255.0
+        return img
+    
+    if is_training:
+        fd = open(os.path.join(path, 'celeb_train.dict'),'rb')
+        TRAIN_KEYS = pickle.load(fd)
+
+        trainX = np.array([load_celebimg(x) for x in TRAIN_KEYS.keys()])
+        trainY = np.array(list(TRAIN_KEYS.values())).astype(np.int32)
+
+        # TOTAL of 3676
+        trX = trainX[:3300]
+        trY = trainY[:3300]
+
+        valX = trainX[3300:, ]
+        valY = trainY[3300:]
+
+        num_tr_batch = len(trX) // batch_size
+        num_val_batch = len(valX) // batch_size
+
+        return trX, trY, num_tr_batch, valX, valY, num_val_batch
+    else:
+        fd = open(os.path.join(path, 'celeb_test.dict'),'rb')
+        TEST_KEYS = pickle.load(fd)
+
+        testX = np.array([load_celebimg(x) for x in TEST_KEYS.keys()])
+        testY = np.array(list(TEST_KEYS.values())).astype(np.int32)
+
+        num_te_batch = len(testX) // batch_size
+        return testX, testY, num_te_batch
+
 def load_smallNORB(batch_size, is_training=True):
     pass
 
@@ -104,6 +147,8 @@ def load_data(dataset, batch_size, is_training=True, one_hot=False):
         return load_mnist(batch_size, is_training)
     elif dataset == 'fashion-mnist':
         return load_fashion_mnist(batch_size, is_training)
+    elif dataset == 'celebgender':
+        return load_celebgender(batch_size, is_training)
     elif dataset == 'smallNORB':
         return load_smallNORB(batch_size, is_training)
     else:
@@ -115,8 +160,12 @@ def get_batch_data(dataset, batch_size, num_threads):
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_mnist(batch_size, is_training=True)
     elif dataset == 'fashion-mnist':
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_fashion_mnist(batch_size, is_training=True)
+    elif dataset == 'celebgender':
+        trX, trY, num_tr_batch, valX, valY, num_val_batch = load_celebgender(batch_size, is_training=True)
     elif dataset == 'smallNORB':
         trX, trY, num_tr_batch, valX, valY, num_val_batch = load_smallNORB(batch_size, is_training=True)
+    
+    print("Size of TrX: "+str(trX.nbytes)+" bytes")
     data_queues = tf.train.slice_input_producer([trX, trY])
     X, Y = tf.train.shuffle_batch(data_queues, num_threads=num_threads,
                                   batch_size=batch_size,

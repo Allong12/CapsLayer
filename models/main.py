@@ -122,6 +122,10 @@ def main(_):
         tf.logging.info(' Loading Graph...')
         num_label = 10
         model = CapsNet(height=28, width=28, channels=1, num_label=10)
+    elif cfg.dataset == 'celebgender':
+        tf.logging.info(' Loading Celeb Gender Graph...')
+        num_label = 2
+        model = CapsNet(height=50, width=50, channels=3, num_label=2)
     elif cfg.dataset == 'smallNORB':
         model = CapsNet(height=32, width=32, channels=3, num_label=5)
         num_label = 5
@@ -130,7 +134,7 @@ def main(_):
     sv = tf.train.Supervisor(graph=model.graph, logdir=cfg.logdir, save_model_secs=0)
 
     if cfg.is_training:
-        tf.logging.info(' Start trainging...')
+        tf.logging.info(' Start training...')
         train(model, sv, num_label)
         tf.logging.info('Training done')
     else:

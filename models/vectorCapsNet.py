@@ -65,7 +65,7 @@ class CapsNet(object):
         # return digitCaps: [batch_size, num_label, 16, 1], activation: [batch_size, num_label]
         with tf.variable_scope('DigitCaps_layer'):
             primaryCaps = tf.reshape(primaryCaps, shape=[cfg.batch_size, -1, 8, 1])
-            self.digitCaps, self.activation = capslayer.layers.fully_connected(primaryCaps, activation, num_outputs=10, out_caps_shape=[16, 1], routing_method='DynamicRouting')
+            self.digitCaps, self.activation = capslayer.layers.fully_connected(primaryCaps, activation, num_outputs=self.num_label, out_caps_shape=[16, 1], routing_method='DynamicRouting')
 
         # Decoder structure in Fig. 2
         # Reconstructe the MNIST images with 3 FC layers
