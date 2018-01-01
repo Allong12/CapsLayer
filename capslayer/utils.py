@@ -99,8 +99,8 @@ def load_celebgender(batch_size, is_training=True):
     import pickle
     from PIL import Image
     path = os.path.join('models', 'data', 'celeb')
-    ALL_IMGS = np.load((os.path.join(path, "all_images.npz")))
-    IMAGE_SIZE = 50
+    ALL_IMGS = np.load((os.path.join(path, "celeb_images.npz")))
+    IMAGE_SIZE = 150
     def load_celebimg(hsh):
         
         imgcontent = Image.open(ALL_IMGS[hsh].all())

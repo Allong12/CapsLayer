@@ -52,4 +52,4 @@ flags.DEFINE_integer('thread_per_gpu', 8, 'Number of preprocessing threads per t
 cfg = tf.app.flags.FLAGS
 
 # Uncomment this line to run in debug mode
-tf.logging.set_verbosity(tf.logging.INFO)
+tf.logging.set_verbosity(tf.logging.DEBUG)
