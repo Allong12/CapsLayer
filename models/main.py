@@ -43,8 +43,10 @@ def save_to():
 
 
 def train(model, supervisor, num_label):
-    trX, trY, num_tr_batch, valX, valY, num_val_batch = load_data(cfg.dataset, cfg.batch_size, is_training=True)
+    TrX, TrY, num_tr_batch, valX, valY, num_val_batch = load_data(cfg.dataset, cfg.batch_size, is_training=True)
     Y = valY[:num_val_batch * cfg.batch_size].reshape((-1, 1))
+    del TrX, TrY
+    tf.logging.info("Train: loaded validation set")
 
     fd_train_acc, fd_loss, fd_val_acc = save_to()
     config = tf.ConfigProto()
@@ -62,9 +64,24 @@ def train(model, supervisor, num_label):
                 end = start + cfg.batch_size
                 global_step = epoch * num_tr_batch + step
 
+                run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                run_metadata = tf.RunMetadata()
+
                 if global_step % cfg.train_sum_freq == 0:
-                    _, loss, train_acc, summary_str = sess.run([model.train_op, model.loss, model.accuracy, model.train_summary])
+                    # TRAIN SESSION
+                    tf.logging.info("Train: FULL RUN")
+
+
+
+                    _, loss, train_acc, summary_str = sess.run(
+                        [model.train_op, model.loss, model.accuracy, model.train_summary],
+                        options=run_options,
+                        run_metadata=run_metadata)
+
                     assert not np.isnan(loss), 'Something wrong! loss is nan...'
+
+                    supervisor.summary_writer.add_run_metadata(run_metadata, 'step%d' % step)
+
                     supervisor.summary_writer.add_summary(summary_str, global_step)
 
                     fd_loss.write(str(global_step) + ',' + str(loss) + "\n")
@@ -72,7 +89,11 @@ def train(model, supervisor, num_label):
                     fd_train_acc.write(str(global_step) + ',' + str(train_acc / cfg.batch_size) + "\n")
                     fd_train_acc.flush()
                 else:
-                    sess.run(model.train_op)
+                    tf.logging.info("Train: SINGLE OP RUN")
+                    sess.run(model.train_op,
+                    options=run_options,
+                    run_metadata=run_metadata)
+                    supervisor.summary_writer.add_run_metadata(run_metadata, 'step%d' % step)
 
                 if cfg.val_sum_freq != 0 and (global_step) % cfg.val_sum_freq == 0:
                     val_acc = 0
@@ -125,7 +146,7 @@ def main(_):
     elif cfg.dataset == 'celebgender':
         tf.logging.info(' Loading Celeb Gender Graph...')
         num_label = 2
-        model = CapsNet(height=150, width=150, channels=3, num_label=2)
+        model = CapsNet(height=cfg.celeb_imagesize, width=cfg.celeb_imagesize, channels=3, num_label=2)
     elif cfg.dataset == 'smallNORB':
         model = CapsNet(height=32, width=32, channels=3, num_label=5)
         num_label = 5

@@ -94,13 +94,16 @@ def load_fashion_mnist(batch_size, is_training=True):
         num_te_batch = 10000 // batch_size
         return teX / 255., teY, num_te_batch
 
-
+celeb_trainX = 0
+celeb_trainY = 0
 def load_celebgender(batch_size, is_training=True):
     import pickle
     from PIL import Image
+
+    tf.logging.info("CALLED load_celebgender")
     path = os.path.join('models', 'data', 'celeb')
     ALL_IMGS = np.load((os.path.join(path, "celeb_images.npz")))
-    IMAGE_SIZE = 150
+    IMAGE_SIZE = 100
     def load_celebimg(hsh):
         
         imgcontent = Image.open(ALL_IMGS[hsh].all())
@@ -114,19 +117,21 @@ def load_celebgender(batch_size, is_training=True):
         fd = open(os.path.join(path, 'celeb_train.dict'),'rb')
         TRAIN_KEYS = pickle.load(fd)
 
-        trainX = np.array([load_celebimg(x) for x in TRAIN_KEYS.keys()])
-        trainY = np.array(list(TRAIN_KEYS.values())).astype(np.int32)
+        global celeb_trainX, celeb_trainY
+        if type(celeb_trainX) == int:
+            celeb_trainX = np.array([load_celebimg(x) for x in TRAIN_KEYS.keys()])
+            celeb_trainY = np.array(list(TRAIN_KEYS.values())).astype(np.int32)
 
         # TOTAL of 3676
-        trX = trainX[:3300]
-        trY = trainY[:3300]
+        trX = celeb_trainX[:3300]
+        trY = celeb_trainY[:3300]
 
-        valX = trainX[3300:, ]
-        valY = trainY[3300:]
+        valX = celeb_trainX[3300:, ]
+        valY = celeb_trainY[3300:]
 
         num_tr_batch = len(trX) // batch_size
         num_val_batch = len(valX) // batch_size
-
+        tf.logging.info("FINISHED CALL load_celebgender")
         return trX, trY, num_tr_batch, valX, valY, num_val_batch
     else:
         fd = open(os.path.join(path, 'celeb_test.dict'),'rb')
@@ -169,8 +174,8 @@ def get_batch_data(dataset, batch_size, num_threads):
     data_queues = tf.train.slice_input_producer([trX, trY])
     X, Y = tf.train.shuffle_batch(data_queues, num_threads=num_threads,
                                   batch_size=batch_size,
-                                  capacity=batch_size * 64,
-                                  min_after_dequeue=batch_size * 32,
+                                  capacity=batch_size * 4,
+                                  min_after_dequeue=batch_size * 2,
                                   allow_smaller_final_batch=False)
 
     return(X, Y)

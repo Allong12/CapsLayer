@@ -28,6 +28,7 @@ flags.DEFINE_float('stddev', 0.01, 'stddev for W initializer')
 flags.DEFINE_float('regularization_scale', 0.392, 'regularization coefficient for reconstruction loss, default to 0.0005*784=0.392')
 flags.DEFINE_float('epsilon', 1e-9, 'void NAN')
 
+flags.DEFINE_integer('celeb_imagesize', 100, 'AL: Image resize val in Celeb Dataset')
 
 ############################
 #   environment setting    #
