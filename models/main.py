@@ -89,11 +89,9 @@ def train(model, supervisor, num_label):
                     fd_train_acc.write(str(global_step) + ',' + str(train_acc / cfg.batch_size) + "\n")
                     fd_train_acc.flush()
                 else:
-                    tf.logging.info("Train: SINGLE OP RUN")
-                    sess.run(model.train_op,
-                    options=run_options,
-                    run_metadata=run_metadata)
-                    supervisor.summary_writer.add_run_metadata(run_metadata, 'step%d' % step)
+                    #tf.logging.info("Train: SINGLE OP RUN")
+                    sess.run(model.train_op)
+
 
                 if cfg.val_sum_freq != 0 and (global_step) % cfg.val_sum_freq == 0:
                     val_acc = 0
