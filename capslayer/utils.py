@@ -104,10 +104,12 @@ def load_celebgender(batch_size, is_training=True):
     path = os.path.join('models', 'data', 'celeb')
     ALL_IMGS = np.load((os.path.join(path, "celeb_images.npz")))
     IMAGE_SIZE = 100
-    def load_celebimg(hsh):
+    def load_celebimg(hsh,flip=False):
         
         imgcontent = Image.open(ALL_IMGS[hsh].all())
         imgcontent = imgcontent.resize((IMAGE_SIZE,IMAGE_SIZE))
+        if flip:
+            imgcontent=imgcontent.transpose(0) #FLIP LEFTRIGHT
         img = np.fromstring(imgcontent.tobytes(), dtype=np.uint8)
         img = img.reshape((IMAGE_SIZE*IMAGE_SIZE*3))
         img = img.astype('float32')/255.0
@@ -119,15 +121,21 @@ def load_celebgender(batch_size, is_training=True):
 
         global celeb_trainX, celeb_trainY
         if type(celeb_trainX) == int:
-            celeb_trainX = np.array([load_celebimg(x) for x in TRAIN_KEYS.keys()])
-            celeb_trainY = np.array(list(TRAIN_KEYS.values())).astype(np.int32)
+            celeb_trainXlist = [load_celebimg(x) for x in TRAIN_KEYS.keys()]
+            celeb_trainXlist.extend([load_celebimg(x,flip=True) for x in TRAIN_KEYS.keys()])
 
-        # TOTAL of 3676
-        trX = celeb_trainX[:3300]
-        trY = celeb_trainY[:3300]
+            celeb_trainYlist = list(TRAIN_KEYS.values())
+            celeb_trainYlist.extend(list(TRAIN_KEYS.values()))
 
-        valX = celeb_trainX[3300:, ]
-        valY = celeb_trainY[3300:]
+            celeb_trainX = np.array(celeb_trainXlist)
+            celeb_trainY = np.array(celeb_trainYlist).astype(np.int32)
+
+        # TOTAL of 3676, doubled from flipped 7352
+        trX = celeb_trainX[:6600]
+        trY = celeb_trainY[:6600]
+
+        valX = celeb_trainX[6600:, ]
+        valY = celeb_trainY[6600:]
 
         num_tr_batch = len(trX) // batch_size
         num_val_batch = len(valX) // batch_size
