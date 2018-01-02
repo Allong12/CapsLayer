@@ -103,7 +103,7 @@ def load_celebgender(batch_size, is_training=True):
     tf.logging.info("CALLED load_celebgender")
     path = os.path.join('models', 'data', 'celeb')
     ALL_IMGS = np.load((os.path.join(path, "celeb_images.npz")))
-    IMAGE_SIZE = 100
+    IMAGE_SIZE = 50
     def load_celebimg(hsh,flip=False):
         
         imgcontent = Image.open(ALL_IMGS[hsh].all())

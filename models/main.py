@@ -64,23 +64,21 @@ def train(model, supervisor, num_label):
                 end = start + cfg.batch_size
                 global_step = epoch * num_tr_batch + step
 
-                run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-                run_metadata = tf.RunMetadata()
+                #run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                #run_metadata = tf.RunMetadata()
 
                 if global_step % cfg.train_sum_freq == 0:
                     # TRAIN SESSION
                     tf.logging.info("Train: FULL RUN")
 
-
-
                     _, loss, train_acc, summary_str = sess.run(
-                        [model.train_op, model.loss, model.accuracy, model.train_summary],
-                        options=run_options,
-                        run_metadata=run_metadata)
+                        [model.train_op, model.loss, model.accuracy, model.train_summary])
+                    #    options=run_options,
+                    #    run_metadata=run_metadata)
 
                     assert not np.isnan(loss), 'Something wrong! loss is nan...'
 
-                    supervisor.summary_writer.add_run_metadata(run_metadata, 'step%d' % step)
+                    #supervisor.summary_writer.add_run_metadata(run_metadata, 'step%d' % step)
 
                     supervisor.summary_writer.add_summary(summary_str, global_step)
 
@@ -137,6 +135,7 @@ def evaluation(model, supervisor, num_label):
 
 
 def main(_):
+    tf.logging.info(cfg.results)
     if cfg.dataset == 'mnist' or cfg.dataset == 'fashion-mnist':
         tf.logging.info(' Loading Graph...')
         num_label = 10
