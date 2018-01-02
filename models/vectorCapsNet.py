@@ -46,7 +46,7 @@ class CapsNet(object):
                 self._summary()
 
                 self.global_step = tf.Variable(1, name='global_step', trainable=False)
-                self.optimizer = tf.train.AdamOptimizer()
+                self.optimizer = tf.train.AdamOptimizer(learning_rate=cfg.learning_rate)
                 self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
             else:
                 self.X = tf.placeholder(tf.float32, shape=(cfg.batch_size, None))

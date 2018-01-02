@@ -17,6 +17,7 @@ flags.DEFINE_float('m_scheduler', 1, '.')
 flags.DEFINE_float('lambda_val', 0.5, 'down weight of the loss for absent digit classes')
 
 # for training
+flags.DEFINE_float('learning_rate', 0.001, 'Adam learning rate')
 flags.DEFINE_integer('batch_size', 32, 'batch size')
 flags.DEFINE_integer('epoch', 50, 'epoch')
 flags.DEFINE_integer('iter_routing', 3, 'number of iterations in routing algorithm')
@@ -36,9 +37,13 @@ flags.DEFINE_integer('celeb_imagesize', 50, 'AL: Image resize val in Celeb Datas
 flags.DEFINE_string('dataset', 'celebgender', 'The name of dataset [smallNORB, mnist, fashion-mnist]')
 flags.DEFINE_boolean('is_training', True, 'train or predict phase')
 flags.DEFINE_integer('num_threads', 8, 'number of threads of enqueueing exampls')
-run_id = str(tf.app.flags.FLAGS.m_plus)+"-"+str(tf.app.flags.FLAGS.m_minus)+"_"+tf.app.flags.FLAGS.dataset
-results = os.path.join('models', 'results'+run_id)
-logdir = os.path.join('logdir', run_id)
+
+run_id = tf.app.flags.FLAGS.dataset+"m+"+str(tf.app.flags.FLAGS.m_plus)+"-"+str(tf.app.flags.FLAGS.m_minus)
+run_id +="_b"+str(tf.app.flags.FLAGS.batch_size)
+run_id += "_lr"+str(tf.app.flags.FLAGS.learning_rate)
+
+results = os.path.join('models', 'results\\'+run_id)
+logdir = os.path.join(results, 'logdir')
 flags.DEFINE_string('results', results, 'path for saving results')
 flags.DEFINE_string('logdir', logdir, 'logs directory')
 flags.DEFINE_string('model', 'vectorCapsNet', 'the model to use')
